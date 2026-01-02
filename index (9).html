@@ -1,0 +1,840 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Cuddle Puddle™ — Словарь для команды</title>
+<style>
+  :root{
+    --bg:#0b0c12;
+    --bg2:#0f1020;
+    --card:rgba(255,255,255,.06);
+    --card2:rgba(255,255,255,.08);
+    --stroke:rgba(255,255,255,.10);
+    --text:#f3f2ff;
+    --muted:rgba(243,242,255,.72);
+    --muted2:rgba(243,242,255,.58);
+    --primary:#7a66ac;          /* brand */
+    --primary2:#a89bd6;
+    --green:#4ade80;
+    --yellow:#fbbf24;
+    --red:#fb7185;
+    --shadow: 0 22px 80px rgba(0,0,0,.55);
+    --shadow2: 0 14px 40px rgba(0,0,0,.35);
+    --radius:22px;
+    --radius2:16px;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
+    --sans: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,system-ui,sans-serif;
+  }
+
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    font-family:var(--sans);
+    color:var(--text);
+    background:
+      radial-gradient(1200px 700px at 18% 20%, rgba(122,102,172,.28), transparent 55%),
+      radial-gradient(900px 600px at 82% 30%, rgba(168,155,214,.22), transparent 55%),
+      radial-gradient(800px 500px at 40% 95%, rgba(74,222,128,.10), transparent 55%),
+      linear-gradient(180deg, var(--bg), var(--bg2));
+    overflow:hidden;
+  }
+
+  /* Top Bar */
+  .top{
+    position:fixed; inset:0 0 auto 0;
+    height:64px;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:10px 14px;
+    backdrop-filter: blur(14px);
+    background: linear-gradient(180deg, rgba(10,10,18,.85), rgba(10,10,18,.40));
+    border-bottom:1px solid rgba(255,255,255,.08);
+    z-index:20;
+  }
+  .brand{
+    display:flex; align-items:center; gap:12px; min-width:240px;
+  }
+  .dot{
+    width:44px;height:44px;border-radius:14px;
+    display:grid;place-items:center;
+    background:linear-gradient(135deg, rgba(122,102,172,.9), rgba(168,155,214,.55));
+    box-shadow: 0 10px 25px rgba(122,102,172,.25);
+    border:1px solid rgba(255,255,255,.14);
+  }
+  .brand h1{
+    margin:0; font-size:14px; letter-spacing:.4px;
+  }
+  .brand p{
+    margin:2px 0 0 0; font-size:12px; color:var(--muted2);
+  }
+
+  .controls{
+    display:flex; align-items:center; gap:10px;
+  }
+  .pill{
+    display:flex; align-items:center; gap:8px;
+    padding:10px 12px; border-radius:999px;
+    background:rgba(255,255,255,.06);
+    border:1px solid rgba(255,255,255,.10);
+    box-shadow: var(--shadow2);
+    color:var(--muted);
+    font-size:12px;
+    user-select:none;
+  }
+  .btn{
+    cursor:pointer;
+    padding:10px 12px;
+    border-radius:14px;
+    border:1px solid rgba(255,255,255,.12);
+    background:rgba(255,255,255,.06);
+    color:var(--text);
+    font-weight:700;
+    display:flex; align-items:center; gap:10px;
+    transition:.18s ease;
+    box-shadow: var(--shadow2);
+  }
+  .btn:hover{ transform: translateY(-1px); background:rgba(255,255,255,.08); }
+  .btn.primary{
+    background: linear-gradient(135deg, rgba(122,102,172,.95), rgba(168,155,214,.55));
+    border:1px solid rgba(255,255,255,.16);
+  }
+  .btn.ghost{
+    background:transparent;
+    border:1px solid rgba(255,255,255,.10);
+    color:var(--muted);
+    box-shadow:none;
+  }
+
+  /* Layout */
+  .wrap{
+    position:relative;
+    height:100%;
+    padding-top:64px;
+  }
+  .stage{
+    height:100%;
+    display:grid;
+    grid-template-columns: 1.15fr .85fr;
+    gap:16px;
+    padding:18px;
+  }
+  @media (max-width: 980px){
+    body{overflow:auto}
+    .stage{grid-template-columns:1fr; padding-bottom:110px;}
+  }
+
+  /* Slide area */
+  .slide{
+    background: rgba(255,255,255,.04);
+    border:1px solid rgba(255,255,255,.09);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow:hidden;
+    position:relative;
+    min-height: calc(100vh - 64px - 36px);
+  }
+  .slideInner{
+    height:100%;
+    padding:26px;
+    display:flex;
+    flex-direction:column;
+    gap:18px;
+  }
+  .kicker{
+    display:flex; align-items:center; gap:10px;
+    color:var(--muted);
+    font-size:12px;
+    letter-spacing:.6px;
+    text-transform:uppercase;
+  }
+  .kicker .b{
+    width:7px;height:7px;border-radius:99px;
+    background: rgba(168,155,214,.9);
+    box-shadow: 0 0 0 4px rgba(168,155,214,.18);
+  }
+  .title{
+    margin:0;
+    font-size:46px;
+    line-height:1.04;
+    letter-spacing:-.8px;
+  }
+  .title .accent{
+    color:transparent;
+    background: linear-gradient(135deg, #cbbcff, #7a66ac);
+    -webkit-background-clip:text; background-clip:text;
+  }
+  .sub{
+    margin:0;
+    font-size:16px;
+    color:var(--muted);
+    line-height:1.6;
+    max-width: 72ch;
+  }
+
+  /* Term cards */
+  .grid{
+    display:grid;
+    grid-template-columns: repeat(2, minmax(0,1fr));
+    gap:14px;
+  }
+  @media (max-width: 980px){
+    .grid{grid-template-columns:1fr;}
+    .title{font-size:38px;}
+  }
+
+  .card{
+    background: rgba(255,255,255,.05);
+    border:1px solid rgba(255,255,255,.10);
+    border-radius: var(--radius2);
+    padding:16px;
+    box-shadow: var(--shadow2);
+    position:relative;
+    overflow:hidden;
+  }
+  .card::before{
+    content:"";
+    position:absolute; inset:-40px -40px auto auto;
+    width:120px; height:120px; border-radius:999px;
+    background: radial-gradient(circle at 30% 30%, rgba(122,102,172,.35), transparent 60%);
+    pointer-events:none;
+  }
+  .row{
+    display:flex; align-items:flex-start; justify-content:space-between; gap:12px;
+  }
+  .term{
+    display:flex; align-items:center; gap:10px;
+  }
+  .emoji{
+    width:40px;height:40px;border-radius:14px;
+    display:grid;place-items:center;
+    background: rgba(255,255,255,.06);
+    border:1px solid rgba(255,255,255,.10);
+    font-size:18px;
+  }
+  .term h3{
+    margin:0;
+    font-size:18px;
+    letter-spacing:.2px;
+  }
+  .tag{
+    font-family: var(--mono);
+    font-size:12px;
+    padding:6px 10px;
+    border-radius:999px;
+    background: rgba(122,102,172,.18);
+    border:1px solid rgba(122,102,172,.35);
+    color: #e9e4fb;
+    white-space:nowrap;
+  }
+  .card p{
+    margin:10px 0 0 0;
+    color:var(--muted);
+    line-height:1.55;
+    font-size:14px;
+  }
+  .why{
+    margin-top:10px;
+    padding-top:10px;
+    border-top:1px dashed rgba(255,255,255,.14);
+    color: rgba(243,242,255,.78);
+    font-size:13.5px;
+    line-height:1.5;
+  }
+
+  /* Side panel */
+  .side{
+    display:flex; flex-direction:column; gap:16px;
+  }
+  .panel{
+    background: rgba(255,255,255,.05);
+    border:1px solid rgba(255,255,255,.10);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow2);
+    padding:16px;
+  }
+  .panel h4{margin:0 0 10px 0; font-size:14px; color:rgba(243,242,255,.9); letter-spacing:.3px;}
+  .search{
+    display:flex; gap:10px;
+  }
+  input{
+    flex:1;
+    padding:12px 12px;
+    border-radius:14px;
+    border:1px solid rgba(255,255,255,.12);
+    background: rgba(0,0,0,.18);
+    color:var(--text);
+    outline:none;
+  }
+  input::placeholder{color:rgba(243,242,255,.45)}
+  .mini{
+    font-size:12px;
+    color:var(--muted2);
+    line-height:1.55;
+  }
+  .kbd{
+    font-family:var(--mono);
+    font-size:12px;
+    padding:3px 8px;
+    border-radius:10px;
+    border:1px solid rgba(255,255,255,.14);
+    background: rgba(255,255,255,.06);
+    color:rgba(243,242,255,.85);
+  }
+  .list{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    max-height: 46vh;
+    overflow:auto;
+    padding-right:6px;
+  }
+  .list::-webkit-scrollbar{width:10px}
+  .list::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:999px}
+  .item{
+    padding:12px;
+    border-radius:16px;
+    border:1px solid rgba(255,255,255,.10);
+    background: rgba(255,255,255,.04);
+    cursor:pointer;
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    transition:.15s ease;
+  }
+  .item:hover{background: rgba(255,255,255,.06); transform: translateY(-1px);}
+  .item .l{
+    display:flex; align-items:center; gap:10px;
+    min-width:0;
+  }
+  .item .l div{min-width:0}
+  .item .t{font-weight:800; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .item .d{font-size:12px; color:var(--muted2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:34ch;}
+  .badge{
+    font-size:12px;
+    padding:6px 10px;
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,.12);
+    background: rgba(255,255,255,.05);
+    color:rgba(243,242,255,.86);
+    white-space:nowrap;
+  }
+
+  /* Notes */
+  .notes{
+    margin-top:auto;
+    background: linear-gradient(180deg, rgba(251,191,36,.12), rgba(251,191,36,.06));
+    border:1px solid rgba(251,191,36,.24);
+    padding:14px;
+    border-radius:18px;
+    display:none;
+  }
+  .notes strong{color: rgba(251,191,36,.95)}
+  .notes p{margin:8px 0 0 0; color:rgba(255,255,255,.82); font-size:13.5px; line-height:1.55}
+
+  /* Footer nav (mobile) */
+  .nav{
+    position:fixed; inset:auto 0 0 0;
+    display:flex; align-items:center; justify-content:space-between;
+    gap:12px;
+    padding:12px 14px;
+    background: linear-gradient(180deg, rgba(10,10,18,.15), rgba(10,10,18,.75));
+    backdrop-filter: blur(14px);
+    border-top:1px solid rgba(255,255,255,.08);
+    z-index:30;
+  }
+  @media (min-width: 981px){
+    .nav{display:none;}
+  }
+
+  /* Progress */
+  .progressWrap{
+    position:absolute; left:0; right:0; bottom:0;
+    height:6px;
+    background: rgba(255,255,255,.08);
+  }
+  .progressBar{
+    height:100%;
+    width:0%;
+    background: linear-gradient(90deg, rgba(122,102,172,1), rgba(168,155,214,1));
+  }
+  .counter{
+    position:absolute; right:16px; bottom:14px;
+    color:rgba(243,242,255,.6);
+    font-size:12px;
+  }
+
+  /* Simple SVG icons */
+  .logoSvg{width:20px;height:20px;display:block}
+  .spark{
+    width:100%; height:110px;
+    border-radius:18px;
+    border:1px solid rgba(255,255,255,.10);
+    background:
+      radial-gradient(220px 120px at 25% 40%, rgba(122,102,172,.35), transparent 60%),
+      radial-gradient(260px 150px at 85% 30%, rgba(168,155,214,.22), transparent 60%),
+      radial-gradient(220px 140px at 55% 120%, rgba(74,222,128,.14), transparent 55%),
+      rgba(255,255,255,.04);
+    box-shadow: var(--shadow2);
+    overflow:hidden;
+    position:relative;
+  }
+  .spark::after{
+    content:"";
+    position:absolute; inset:0;
+    background: linear-gradient(120deg, transparent 0%, rgba(255,255,255,.08) 25%, transparent 55%);
+    transform: translateX(-60%);
+    animation: shine 6.5s ease-in-out infinite;
+    opacity:.65;
+  }
+  @keyframes shine{
+    0%{transform: translateX(-65%)}
+    45%{transform: translateX(130%)}
+    100%{transform: translateX(130%)}
+  }
+
+  /* Print (PDF) */
+  @media print{
+    body{overflow:visible; background:#fff; color:#111}
+    .top,.nav,.side,.progressWrap,.counter{display:none !important;}
+    .wrap{padding-top:0}
+    .stage{grid-template-columns:1fr; padding:0}
+    .slide{min-height:auto; box-shadow:none; border:none; background:#fff}
+    .card{box-shadow:none; border:1px solid #e5e7eb; background:#fff}
+    .emoji{border:1px solid #e5e7eb; background:#fff}
+    .tag{border:1px solid #ddd; background:#f3f4f6; color:#111}
+    .title{color:#111}
+    .title .accent{-webkit-text-fill-color:#7a66ac; background:none}
+    .sub,.card p,.why,.kicker{color:#444}
+    .notes{display:block !important; border:1px solid #f59e0b; background:#fff7ed}
+  }
+</style>
+</head>
+
+<body>
+  <header class="top">
+    <div class="brand">
+      <div class="dot" aria-hidden="true">
+        <!-- small brand mark -->
+        <svg class="logoSvg" viewBox="0 0 24 24" fill="none">
+          <path d="M6 8.5c0-1.4 1.2-2.5 2.6-2.5h6.8C16.8 6 18 7.1 18 8.5v9.8c0 1.4-1.2 2.7-2.6 2.7H8.6C7.2 21 6 19.7 6 18.3V8.5Z" stroke="rgba(255,255,255,.85)" stroke-width="1.6"/>
+          <path d="M9 6.2c.3-1.7 1.2-2.7 3-2.7s2.7 1 3 2.7" stroke="rgba(255,255,255,.85)" stroke-width="1.6" stroke-linecap="round"/>
+          <path d="M8 11h8" stroke="rgba(255,255,255,.35)" stroke-width="1.3" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div>
+        <h1>Cuddle Puddle™ — словарь для команды</h1>
+        <p>Просто. Понятно. Без “маркетингового тумана”. 💜</p>
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="pill">Свайп / ← →</div>
+      <button class="btn ghost" id="toggleNotesBtn" onclick="toggleNotes()">🎤 Нотатки: OFF</button>
+      <button class="btn" onclick="prev()">← Назад</button>
+      <button class="btn primary" onclick="next()">Вперёд →</button>
+      <button class="btn" onclick="window.print()">🖨 PDF</button>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <div class="stage">
+      <!-- Slide -->
+      <section class="slide" id="slide">
+        <div class="slideInner">
+          <div class="kicker"><span class="b"></span><span id="kickerText">СТАРТ</span></div>
+
+          <div class="spark" aria-hidden="true"></div>
+
+          <h2 class="title" id="slideTitle">Словарь, чтобы команда говорила <span class="accent">на одном языке</span>.</h2>
+          <p class="sub" id="slideSub">
+            Я собрал основные слова из презентации так, чтобы их понял любой человек — даже без опыта в маркетинге.
+            Тут нет “умничания”: только смысл, зачем это нам, и как это влияет на деньги.
+          </p>
+
+          <div class="grid" id="cards"></div>
+
+          <div class="notes" id="notes">
+            <strong>🎤 Что я говорю:</strong>
+            <p id="notesText">Давайте договоримся: эти слова — не для “красоты”. Это наш общий язык. Чем быстрее команда понимает термины, тем быстрее мы принимаем решения по делу.</p>
+          </div>
+        </div>
+
+        <div class="progressWrap"><div class="progressBar" id="progress"></div></div>
+        <div class="counter" id="counter">Слайд 1 / 6</div>
+      </section>
+
+      <!-- Side panel -->
+      <aside class="side">
+        <div class="panel">
+          <h4>🔎 Быстрый поиск</h4>
+          <div class="search">
+            <input id="q" placeholder="Например: AOV, LTV, Upsell, Discreet…" />
+            <button class="btn" onclick="clearSearch()">Очистить</button>
+          </div>
+          <p class="mini" style="margin:10px 0 0 0;">
+            Подсказка: нажимай <span class="kbd">Enter</span> — перейду к первому совпадению.
+          </p>
+        </div>
+
+        <div class="panel">
+          <h4>📌 Термины (клик — открыть)</h4>
+          <div class="list" id="list"></div>
+          <p class="mini" style="margin:10px 0 0 0;">
+            Клавиши: <span class="kbd">←</span> <span class="kbd">→</span>. На телефоне — свайп.
+          </p>
+        </div>
+
+        <div class="panel">
+          <h4>🧠 Мини-правило</h4>
+          <p class="mini">
+            Если мы спорим “нравится/не нравится” — это эмоции.  
+            Если мы смотрим на <b>KPI</b> — это взрослое решение. 📊
+          </p>
+        </div>
+      </aside>
+    </div>
+
+    <!-- Mobile nav -->
+    <div class="nav">
+      <button class="btn" onclick="prev()">←</button>
+      <button class="btn ghost" onclick="toggleNotes()">🎤 Нотатки</button>
+      <button class="btn primary" onclick="next()">→</button>
+      <button class="btn" onclick="window.print()">🖨</button>
+    </div>
+  </div>
+
+<script>
+  // Data
+  const terms = [
+    {
+      term:"AOV",
+      emoji:"💰",
+      simple:"Средний чек с одного заказа.",
+      why:"Чем выше средний чек — тем больше денег при том же трафике (без удвоения рекламы).",
+      tag:"деньги/чек",
+      notes:"AOV — это самый быстрый рычаг. Мы поднимаем его апселлом и наборами, а не “волшебной рекламой”."
+    },
+    {
+      term:"LTV",
+      emoji:"🔁",
+      simple:"Сколько денег приносит клиент за всё время.",
+      why:"Повторы делают бизнес стабильным: меньше зависимости от постоянного поиска новых покупателей.",
+      tag:"повторы",
+      notes:"LTV растёт, когда есть Email/SMS, нормальный опыт после покупки и логичные доп. товары."
+    },
+    {
+      term:"CTR",
+      emoji:"👆",
+      simple:"Сколько людей кликают на рекламу.",
+      why:"Показывает: людям вообще интересно или они пролистывают. Это про креатив и подачу.",
+      tag:"реклама",
+      notes:"Низкий CTR = не цепляет идея/первые секунды/заголовок. Высокий CTR = можно тестировать дальше."
+    },
+    {
+      term:"CR",
+      emoji:"🛒",
+      simple:"Сколько людей купили из тех, кто зашёл на сайт.",
+      why:"Если CR низкий — проблема чаще в странице товара, доверии, цене, FAQ, доставке.",
+      tag:"сайт",
+      notes:"CR — это “здоровье” магазина. Мы лечим его структурой PDP и доверием, а не шумом."
+    },
+    {
+      term:"Upsell",
+      emoji:"➕",
+      simple:"Дополнение к основной покупке (мягко).",
+      why:"Поднимает чек логично: плед остаётся входом, а add-on даёт прибыль сверху.",
+      tag:"апселл",
+      notes:"Апселл не должен быть навязчивым. Он должен быть “уместным”: как апгрейд опыта."
+    },
+    {
+      term:"Add-on",
+      emoji:"🧩",
+      simple:"Небольшое доп. улучшение к заказу.",
+      why:"Люди чаще соглашаются на маленькое дополнение, чем на новый “большой” товар.",
+      tag:"дополнение",
+      notes:"Add-on — это “давай добавим к заказу”. Именно он чаще всего поднимает AOV без сопротивления."
+    },
+    {
+      term:"Bundle",
+      emoji:"📦",
+      simple:"Набор товаров вместе (комплект).",
+      why:"Проще купить готовое решение. Плюс выше ценность — значит выше чек.",
+      tag:"набор",
+      notes:"Bundle = меньше выбора, больше ясности. А ясность почти всегда повышает конверсию."
+    },
+    {
+      term:"Discreet",
+      emoji:"🔒",
+      simple:"Приватно и без неловкости.",
+      why:"Доверие. Людям важно, чтобы упаковка/доставка/описания были нейтральными и аккуратными.",
+      tag:"приватность",
+      notes:"Discreet — ключевое слово для adult-wellness. Это про уважение к клиенту и спокойствие."
+    },
+    {
+      term:"Adult-Wellness",
+      emoji:"🌿",
+      simple:"Взрослый комфорт и забота — без пошлости.",
+      why:"Сегмент часто даёт выше маржу. Мы держим тон: качество, приватность, комфорт.",
+      tag:"категория",
+      notes:"Мы не продаём “интим” в лоб. Мы продаём взрослый wellness: аккуратно и премиально."
+    },
+    {
+      term:"Age-gate 18+",
+      emoji:"🛡️",
+      simple:"Проверка возраста на сайте.",
+      why:"Защита бренда, платежей и спокойная работа с платформами по правилам.",
+      tag:"защита",
+      notes:"Age-gate — это не усложнение. Это нормальная взрослая инфраструктура для Private/WELLNESS."
+    },
+    {
+      term:"KPI",
+      emoji:"📊",
+      simple:"Цифры, по которым понимаем результат.",
+      why:"Решения по данным, а не по эмоциям. KPI = навигация, а не давление.",
+      tag:"контроль",
+      notes:"Мы фиксируем KPI на тесте и решаем: масштабируем, улучшаем или стопаем. Спокойно."
+    },
+    {
+      term:"Repeat",
+      emoji:"🔄",
+      simple:"Повторная покупка.",
+      why:"Повторы снижают зависимость от рекламы и делают рост устойчивым.",
+      tag:"рост",
+      notes:"Repeat не появляется “сам”. Он появляется, когда мы строим опыт и коммуникацию (Email/SMS)."
+    },
+    {
+      term:"PDP",
+      emoji:"🧾",
+      simple:"Страница товара (где человек решает купить или уйти).",
+      why:"Хорошая PDP поднимает CR и снижает возвраты: доверие, гарантия, FAQ, доставка.",
+      tag:"страница",
+      notes:"Если PDP слабая — апселл не взлетит. Сначала упаковка, потом масштаб."
+    },
+    {
+      term:"Email / SMS",
+      emoji:"✉️",
+      simple:"Сообщения после визита/покупки (автоматически).",
+      why:"Возвращают людей и увеличивают LTV. Это “прибыль внутри Shopify”.",
+      tag:"повтор",
+      notes:"Welcome, abandon, post-purchase — база. Мы строим цепочки спокойно и системно."
+    }
+  ];
+
+  // Slide grouping (like a mini deck)
+  const slides = [
+    {
+      kicker:"СТАРТ",
+      title:'Словарь, чтобы команда говорила <span class="accent">на одном языке</span>.',
+      sub:"Я собрал основные слова из презентации так, чтобы их понял любой человек — даже без опыта в маркетинге. Тут нет “умничания”: только смысл, зачем это нам, и как это влияет на деньги.",
+      items:["AOV","LTV","KPI","CTR"],
+      notes:"Давайте договоримся: эти слова — не для “красоты”. Это наш общий язык. Чем быстрее команда понимает термины, тем быстрее мы принимаем решения по делу."
+    },
+    {
+      kicker:"ДЕНЬГИ ВНУТРИ МАГАЗИНА",
+      title:'Главные рычаги: <span class="accent">чек</span> и <span class="accent">повтор</span>.',
+      sub:"Мы не обязательно льём больше трафика. Мы учимся зарабатывать больше с каждого клиента — через чек и повтор.",
+      items:["AOV","Upsell","Add-on","Bundle"],
+      notes:"Если коротко: вход остаётся плед. Деньги растут, когда мы добавляем логичные дополнения и наборы."
+    },
+    {
+      kicker:"ПОВТОРЫ И СТАБИЛЬНОСТЬ",
+      title:'Повтор = <span class="accent">спокойный рост</span>, а не лотерея.',
+      sub:"Повторы снижают стресс: меньше зависимости от новых клиентов каждый день. Это и есть “система”.",
+      items:["LTV","Repeat","Email / SMS","KPI"],
+      notes:"Мы строим ретеншн: цепочки сообщений + нормальный опыт после покупки. Это база для LTV."
+    },
+    {
+      kicker:"РЕКЛАМА И САЙТ",
+      title:'CTR говорит про <span class="accent">идею</span>, CR — про <span class="accent">магазин</span>.',
+      sub:"Если кликают, но не покупают — проблема чаще на сайте. Если не кликают — проблема в креативе/подаче.",
+      items:["CTR","CR","PDP","KPI"],
+      notes:"Мы не гадаем. Мы смотрим: CTR → CR → AOV. Там сразу видно, где узкое место."
+    },
+    {
+      kicker:"PRIVATE / WELLNESS (ЧИСТО)",
+      title:'Discreet = <span class="accent">приватно</span>, Adult-Wellness = <span class="accent">взросло</span>.',
+      sub:"Мы не делаем “шок”. Мы держим тон: качество, приватность, комфорт. Всё в рамках правил.",
+      items:["Discreet","Adult-Wellness","Age-gate 18+","PDP"],
+      notes:"Важно: мы ничего не обходим. Мы строим взрослую категорию аккуратно и безопасно."
+    },
+    {
+      kicker:"ФИНАЛ",
+      title:'Одна фраза: <span class="accent">решаем по данным</span>.',
+      sub:"Словарь — это база. Дальше мы делаем тест 7–14 дней и принимаем решение по KPI. Спокойно и по-взрослому.",
+      items:["KPI","AOV","LTV","Repeat"],
+      notes:"Я предлагаю: не спорим бесконечно. Ставим тест, фиксируем цифры, и цифры сами покажут, что правильно."
+    }
+  ];
+
+  // State
+  let idx = 0;
+  let notesOn = false;
+
+  const $ = (s)=>document.querySelector(s);
+  const elKicker = $("#kickerText");
+  const elTitle = $("#slideTitle");
+  const elSub = $("#slideSub");
+  const elCards = $("#cards");
+  const elNotes = $("#notes");
+  const elNotesText = $("#notesText");
+  const elProgress = $("#progress");
+  const elCounter = $("#counter");
+  const elList = $("#list");
+  const elQ = $("#q");
+  const toggleBtn = $("#toggleNotesBtn");
+
+  // Helpers
+  function findTerm(name){
+    return terms.find(t => t.term.toLowerCase() === name.toLowerCase());
+  }
+  function renderCards(names){
+    elCards.innerHTML = "";
+    names.forEach(n=>{
+      const t = findTerm(n) || terms.find(x => x.term === n);
+      if(!t) return;
+      elCards.appendChild(card(t));
+    });
+  }
+  function card(t){
+    const div = document.createElement("div");
+    div.className="card";
+    div.innerHTML = `
+      <div class="row">
+        <div class="term">
+          <div class="emoji">${t.emoji || "✨"}</div>
+          <div>
+            <h3>${t.term}</h3>
+            <div class="mini" style="margin-top:4px;color:rgba(243,242,255,.62)">${t.tag ? "• " + t.tag : ""}</div>
+          </div>
+        </div>
+        <div class="tag">${t.term}</div>
+      </div>
+      <p><b>Просто:</b> ${t.simple}</p>
+      <div class="why"><b>Зачем:</b> ${t.why}</div>
+    `;
+    return div;
+  }
+
+  function setSlide(i){
+    idx = (i + slides.length) % slides.length;
+    const s = slides[idx];
+    elKicker.textContent = s.kicker;
+    elTitle.innerHTML = s.title;
+    elSub.textContent = s.sub;
+    renderCards(s.items);
+    elNotesText.textContent = s.notes;
+    elNotes.style.display = notesOn ? "block" : "none";
+    toggleBtn.textContent = `🎤 Нотатки: ${notesOn ? "ON" : "OFF"}`;
+    elProgress.style.width = `${((idx+1)/slides.length)*100}%`;
+    elCounter.textContent = `Слайд ${idx+1} / ${slides.length}`;
+  }
+
+  function next(){ setSlide(idx+1); }
+  function prev(){ setSlide(idx-1); }
+
+  function toggleNotes(){
+    notesOn = !notesOn;
+    elNotes.style.display = notesOn ? "block" : "none";
+    toggleBtn.textContent = `🎤 Нотатки: ${notesOn ? "ON" : "OFF"}`;
+  }
+
+  // Sidebar list
+  function renderList(filter=""){
+    const q = filter.trim().toLowerCase();
+    const items = terms.filter(t=>{
+      if(!q) return true;
+      return (t.term.toLowerCase().includes(q) ||
+              t.simple.toLowerCase().includes(q) ||
+              t.why.toLowerCase().includes(q) ||
+              (t.tag||"").toLowerCase().includes(q));
+    });
+
+    elList.innerHTML = "";
+    items.forEach(t=>{
+      const row = document.createElement("div");
+      row.className="item";
+      row.innerHTML = `
+        <div class="l">
+          <div class="emoji" style="width:34px;height:34px;border-radius:12px;font-size:16px">${t.emoji}</div>
+          <div>
+            <div class="t">${t.term}</div>
+            <div class="d">${t.simple}</div>
+          </div>
+        </div>
+        <div class="badge">Открыть</div>
+      `;
+      row.addEventListener("click", ()=>{
+        // create a "single-term slide" quickly
+        elKicker.textContent = "ТЕРМИН";
+        elTitle.innerHTML = `${t.term} <span class="accent">— простыми словами</span>`;
+        elSub.textContent = t.simple;
+        elCards.innerHTML = "";
+        elCards.appendChild(card(t));
+        elNotesText.textContent = t.notes || "Запоминаем смысл и используем в созвонах и отчётах.";
+        elNotes.style.display = notesOn ? "block" : "none";
+        elProgress.style.width = `${((idx+1)/slides.length)*100}%`;
+        elCounter.textContent = `Слайд ${idx+1} / ${slides.length}  ·  Просмотр: ${t.term}`;
+        window.scrollTo({top:0, behavior:"smooth"});
+      });
+      elList.appendChild(row);
+    });
+
+    if(items.length===0){
+      const empty = document.createElement("div");
+      empty.className="mini";
+      empty.textContent = "Ничего не найдено. Попробуй другое слово 🙂";
+      elList.appendChild(empty);
+    }
+  }
+
+  function clearSearch(){
+    elQ.value="";
+    renderList("");
+    elQ.focus();
+  }
+
+  // Search behavior
+  elQ.addEventListener("input", e=>{
+    renderList(e.target.value);
+  });
+  elQ.addEventListener("keydown", e=>{
+    if(e.key==="Enter"){
+      const first = elList.querySelector(".item");
+      if(first) first.click();
+    }
+  });
+
+  // Keyboard
+  document.addEventListener("keydown", (e)=>{
+    if(e.key==="ArrowRight") next();
+    if(e.key==="ArrowLeft") prev();
+    if(e.key.toLowerCase()==="n") toggleNotes();
+    if(e.key.toLowerCase()==="p") window.print();
+    if(e.key==="/"){
+      e.preventDefault();
+      elQ.focus();
+    }
+  });
+
+  // Touch swipe
+  let startX=0, startY=0;
+  document.addEventListener("touchstart", (e)=>{
+    const t = e.changedTouches[0];
+    startX = t.clientX; startY = t.clientY;
+  }, {passive:true});
+  document.addEventListener("touchend", (e)=>{
+    const t = e.changedTouches[0];
+    const dx = t.clientX - startX;
+    const dy = t.clientY - startY;
+    // only horizontal swipes
+    if(Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy)){
+      if(dx < 0) next();
+      else prev();
+    }
+  }, {passive:true});
+
+  // Init
+  renderList("");
+  setSlide(0);
+</script>
+</body>
+</html>
